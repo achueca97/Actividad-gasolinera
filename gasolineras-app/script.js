@@ -4,27 +4,17 @@ createApp({
 
     data() {
         return {
-
             latitude: 40.4168,
-
             longitude: -3.7038,
-
             radius: 5,
-
             selectedFuel: '',
-
             brandFilter: '',
-
             brands: [],
-
             allStations: [],
-
             gasStations: [],
-
+            showManualCoordinates: false,
             loading: false,
-
             error: '',
-
             searched: false
         };
     },
@@ -34,11 +24,8 @@ createApp({
         async searchGasStations() {
 
             this.loading = true;
-
             this.error = '';
-
             this.searched = true;
-
             this.gasStations = [];
 
             try {
@@ -46,18 +33,13 @@ createApp({
                 const apiUrl =
                     'https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/EstacionesTerrestres/';
 
-                const response =
-                    await fetch(apiUrl);
+                const response = await fetch(apiUrl);
 
                 if (!response.ok) {
-
-                    throw new Error(
-                        `Error HTTP: ${response.status}`
-                    );
+                    throw new Error(`Error HTTP: ${response.status}`);
                 }
 
-                const data =
-                    await response.json();
+                const data = await response.json();
 
                 this.allStations =
                     this.processGasStations(data);
@@ -67,6 +49,11 @@ createApp({
                 );
 
                 this.applyFilters();
+
+                if (this.gasStations.length === 0) {
+                    this.error =
+                        'No se encontraron gasolineras dentro del radio indicado.';
+                }
 
             } catch (err) {
 
@@ -91,9 +78,7 @@ createApp({
             if (
                 data &&
                 data.ListaEESSPrecio &&
-                Array.isArray(
-                    data.ListaEESSPrecio
-                )
+                Array.isArray(data.ListaEESSPrecio)
             ) {
 
                 stations =
@@ -143,39 +128,28 @@ createApp({
                                 station['Municipio']
                                 || '',
 
-                            provincia:
-                                station['Provincia']
-                                || '',
-
                             horario:
                                 station['Horario']
                                 || 'No especificado',
 
-                            latitud: lat,
-
-                            longitud: lon,
-
-                            distancia: distance,
+                            distancia:
+                                distance,
 
                             gasolina95:
-                                station[
-                                    'Precio Gasolina 95 E5'
-                                ] || null,
+                                station['Precio Gasolina 95 E5']
+                                || null,
 
                             gasolina98:
-                                station[
-                                    'Precio Gasolina 98 E5'
-                                ] || null,
+                                station['Precio Gasolina 98 E5']
+                                || null,
 
                             diesel:
-                                station[
-                                    'Precio Gasoleo A'
-                                ] || null,
+                                station['Precio Gasoleo A']
+                                || null,
 
                             dieselPremium:
-                                station[
-                                    'Precio Gasoleo Premium'
-                                ] || null
+                                station['Precio Gasoleo Premium']
+                                || null
                         };
 
                     })
@@ -265,10 +239,10 @@ createApp({
             if (this.brandFilter) {
 
                 filtered =
-                    filtered.filter(station =>
-
-                        station.empresa ===
-                        this.brandFilter
+                    filtered.filter(
+                        station =>
+                            station.empresa ===
+                            this.brandFilter
                     );
             }
 
@@ -302,9 +276,7 @@ createApp({
                 this.degToRad(lon2 - lon1);
 
             const a =
-
                 Math.sin(dLat / 2) *
-
                 Math.sin(dLat / 2) +
 
                 Math.cos(
@@ -329,7 +301,6 @@ createApp({
         },
 
         degToRad(deg) {
-
             return deg * (Math.PI / 180);
         },
 
@@ -344,6 +315,7 @@ createApp({
             }
 
             this.loading = true;
+            this.error = '';
 
             navigator.geolocation.getCurrentPosition(
 
@@ -362,11 +334,10 @@ createApp({
 
                 error => {
 
-                    this.error =
-                        'No se pudo obtener ubicación: '
-                        + error.message;
-
                     this.loading = false;
+
+                    this.error =
+                        'No se pudo obtener ubicación. Puedes usar la búsqueda manual.';
                 }
             );
         }

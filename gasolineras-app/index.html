@@ -7,6 +7,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.js"></script>
 
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="styles.css">
 </head>
 
@@ -203,7 +204,23 @@
 
             <section class="results-panel">
 
-                <h2>Resultados</h2>
+                <div class="results-header">
+                    <h2>Resultados</h2>
+                    <div class="view-toggle" v-if="gasStations.length > 0">
+                        <button
+                            :class="['toggle-btn', { active: viewMode === 'list' }]"
+                            @click="setViewMode('list')"
+                        >
+                            Listado
+                        </button>
+                        <button
+                            :class="['toggle-btn', { active: viewMode === 'map' }]"
+                            @click="setViewMode('map')"
+                        >
+                            Mapa
+                        </button>
+                    </div>
+                </div>
 
                 <div
                     v-if="error"
@@ -222,6 +239,7 @@
                 <div
                     v-if="gasStations.length > 0"
                     class="results"
+                    v-show="viewMode === 'list'"
                 >
 
                     <p class="message info">
@@ -304,6 +322,12 @@
                 </div>
 
                 <div
+                    v-if="gasStations.length > 0"
+                    v-show="viewMode === 'map'"
+                    id="map-container"
+                ></div>
+
+                <div
                     v-else-if="!loading && searched"
                     class="empty"
                 >
@@ -315,8 +339,8 @@
                     v-else-if="!loading"
                     class="empty"
                 >
-                    Pulsa “Usar mi ubicación”
-                    o “Buscar gasolineras” para empezar.
+                    Pulsa "Usar mi ubicación"
+                    o "Buscar gasolineras" para empezar.
                 </div>
 
             </section>
@@ -325,6 +349,7 @@
 
     </div>
 
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="script.js"></script>
 
 </body>
